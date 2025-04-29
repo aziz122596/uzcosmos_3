@@ -5,9 +5,8 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 
-# --- Функции Аугментации и Препроцессинга (Albumentations) ---
 import albumentations as A
-from albumentations.pytorch import ToTensorV2 # Важно для PyTorch
+from albumentations.pytorch import ToTensorV2
 
 def get_training_augmentation_pipeline(height, width):
     """Возвращает конвейер аугментаций для обучения."""
@@ -37,38 +36,25 @@ def get_validation_augmentation_pipeline(height, width):
     ])
 
 def get_preprocessing_pipeline(preprocessing_fn=None):
-    """Возвращает конвейер препроцессинга (нормализация + ToTensorV2).
-    Args:
-        preprocessing_fn (callable, optional): Функция из smp.encoders.get_preprocessing_fn
-    """
+    """Возвращает конвейер препроцессинга (нормализация + ToTensorV2)."""
     _transform = []
     if preprocessing_fn:
         _transform.append(A.Lambda(image=preprocessing_fn))
     else:
-        # Стандартная нормализация к [0, 1]
         _transform.append(A.Normalize(mean=(0, 0, 0), std=(1, 1, 1), max_pixel_value=255.0))
-
-    _transform.append(ToTensorV2()) # Конвертация в PyTorch тензор (C, H, W)
+    _transform.append(ToTensorV2())
     return A.Compose(_transform)
 
-# --- Класс Датасета (PyTorch) ---
 class RoadDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, image_filenames, 
+    def __init__(self, image_dir, mask_dir, image_filenames, # Принимаем полные имена файлов
                  transform=None, preprocessing=None):
-        """
-        Args:
-            image_dir (str): Путь к папке с изображениями (e.g., '.../training/input').
-            mask_dir (str): Путь к папке с масками (e.g., '.../training/output').
-            image_filenames (list): Список ПОЛНЫХ имен файлов изображений (e.g., ['img-1.png', ...]).
-            transform (albumentations.Compose, optional): Конвейер аугментаций.
-            preprocessing (albumentations.Compose, optional): Конвейер препроцессинга.
-        """
         self.image_dir = image_dir
         self.mask_dir = mask_dir
-        self.image_filenames = image_filenames
+        # Фильтруем список, оставляя только img-*.png на всякий случай
+        self.image_filenames = [f for f in image_filenames if f.lower().startswith('img-') and f.lower().endswith('.png')]
         self.transform = transform
         self.preprocessing = preprocessing
-        print(f"PyTorch Dataset создан: {len(self.image_filenames)} ID найдено.")
+        print(f"PyTorch Dataset создан: {len(self.image_filenames)} ID найдено (img-*.png).")
         if not self.image_filenames:
             print(f"Предупреждение: Список image_filenames пуст!")
 
@@ -76,7 +62,7 @@ class RoadDataset(Dataset):
         return len(self.image_filenames)
 
     def load_image(self, path):
-        """Загружает .png изображение с помощью OpenCV."""
+        """Загружает .png изображение."""
         try:
             img = cv2.imread(path)
             if img is None: raise ValueError(f"cv2.imread вернул None для {path}")
@@ -87,7 +73,7 @@ class RoadDataset(Dataset):
             return None
 
     def load_mask(self, path):
-        """Загружает .png маску как одноканальное изображение."""
+        """Загружает .png маску."""
         try:
             mask = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
             if mask is None: raise ValueError(f"cv2.imread вернул None для {path}")
@@ -99,44 +85,36 @@ class RoadDataset(Dataset):
     def __getitem__(self, idx):
         img_filename = self.image_filenames[idx]
         img_path = os.path.join(self.image_dir, img_filename)
-        mask_path = os.path.join(self.mask_dir, img_filename) 
+        mask_path = os.path.join(self.mask_dir, img_filename) # Имя маски совпадает
 
         image = self.load_image(img_path)
         mask = self.load_mask(mask_path)
 
-        # Обработка ошибок загрузки
         if image is None or mask is None:
             print(f"Пропуск примера из-за ошибки загрузки: {img_filename}")
-            dummy_img = torch.zeros((3, 256, 256), dtype=torch.float32) 
+            dummy_img = torch.zeros((3, 256, 256), dtype=torch.float32)
             dummy_mask = torch.zeros((1, 256, 256), dtype=torch.float32)
             return dummy_img, dummy_mask
 
-        # Бинаризация маски: все что не 0, становится 1
         mask = (mask > 0).astype(np.float32)
-        mask = np.expand_dims(mask, axis=-1) # -> (H, W, 1) для albumentations
+        mask = np.expand_dims(mask, axis=-1)
 
-        # 1. Аугментация
         sample = {'image': image, 'mask': mask}
         if self.transform:
-            try:
-                sample = self.transform(**sample)
-            except Exception as e:
-                print(f"Ошибка аугментации для {img_filename}: {e}")
-                pass # Продолжаем без аугментации
+            try: sample = self.transform(**sample)
+            except Exception as e: print(f"Ошибка аугментации для {img_filename}: {e}"); pass
 
-        # 2. Препроцессинг (нормализация + ToTensorV2)
         if self.preprocessing:
             try:
                 sample = self.preprocessing(**sample)
-                image = sample['image'] # -> тензор (C, H, W)
-                mask = sample['mask']   # -> тензор (C=1, H, W)
+                image = sample['image']
+                mask = sample['mask']
             except Exception as e:
                 print(f"Ошибка препроцессинга для {img_filename}: {e}")
                 image = torch.zeros((3, 256, 256), dtype=torch.float32)
                 mask = torch.zeros((1, 256, 256), dtype=torch.float32)
-                return image, mask # Возвращаем заглушки
+                return image, mask
 
-        
         image = image.float()
         mask = mask.float()
 

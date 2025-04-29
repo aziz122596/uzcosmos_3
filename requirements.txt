@@ -1,15 +1,27 @@
-torch>=1.8.0 
-torchvision>=0.9.0 
+# PyTorch Core
+torch>=1.8.0
+torchvision>=0.9.0
 
+# Segmentation Model & Augmentations
 segmentation-models-pytorch>=0.3.0
 albumentations>=1.0.0
-opencv-python-headless>=4.5.0 
+opencv-python-headless>=4.5.0
+
+# General ML/Data Handling
 numpy>=1.19.0
+scikit-learn>=1.0.0
 matplotlib>=3.3.0
-scikit-learn>=1.0.0 
 tqdm>=4.60.0
-Pillow>=8.0.0
 PyYAML>=5.1
-# scikit-image>=0.18.0
+
+# Dependencies for html_link_parser.py (downloader)
+beautifulsoup4>=4.9.0
+Pillow>=8.0.0
+scikit-image>=0.18.0 
+html5lib>=1.1
+requests 
+
+# Optional:
+# scikit-image # Уже есть
 # rasterio
 # shapely
