@@ -14,18 +14,20 @@ __pycache__/
 *~
 .DS_Store
 
-# Папки с результатами, логами и моделями Keras/TF
-checkpoints_keras/
-logs_keras/
-*.h5
+# Папки с результатами, логами и моделями PyTorch
+checkpoints_pytorch/
+*.pth
+*.pt
 
-# Кэш Hugging Face / Datasets 
+# Кэш Hugging Face / Datasets (если используются)
 .cache/
 *.arrow
 
-# Большие файлы данных
+# Большие файлы данных и временные папки
 # data/
-# downloaded_data/
-# extracted_data/
+downloaded_data/
+extracted_data/
 # *.png # Изображения/маски не храним в git
 
+# Локальные артефакты
+*.png # Закомментируйте, если хотите хранить графики/примеры в репо

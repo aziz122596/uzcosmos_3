@@ -1,107 +1,103 @@
-Этот проект реализует модель семантической сегментации (U-Net с бэкбоном EfficientNet/ResNet) с использованием Keras и библиотеки `segmentation-models` для обнаружения дорог на аэроснимках.
+Этот проект реализует модель семантической сегментации (U-Net с бэкбоном ResNet34) с использованием PyTorch и библиотеки `segmentation-models-pytorch` для обнаружения дорог на аэроснимках.
 
 ## Структура проекта
 
-- `train.py`: Основной скрипт для обучения и валидации модели.
-- `evaluate.py`: Скрипт для оценки обученной модели на тестовом наборе и визуализации предсказаний.
-- `data_loader.py`: Содержит класс `SegmentationDataGenerator` (Keras Sequence) для загрузки данных и функции для аугментации/препроцессинга.
-- `model_builder.py`: Содержит функцию `build_unet_model` для создания архитектуры сегментации (U-Net).
-- `metrics_and_losses.py`: Определяет или импортирует функции потерь и метрик из `segmentation_models`.
-- `utils.py`: Содержит вспомогательные функции (построение графиков, визуализация).
-- `requirements.txt`: Список необходимых Python библиотек (для Keras/TensorFlow).
+- `train.py`: Основной скрипт для обучения и валидации модели. Включает попытку автоматической загрузки данных Massachusetts Roads.
+- `evaluate.py`: Скрипт для оценки обученной модели на тестовом (валидационном) наборе и визуализации предсказаний.
+- `dataset.py`: Содержит класс `RoadDataset` (PyTorch Dataset) для загрузки данных и функции для аугментации/препроцессинга.
+- `model.py`: Содержит функцию `build_model` для создания архитектуры сегментации (U-Net) с помощью `segmentation-models-pytorch`.
+- `metrics.py`: Содержит функции для расчета метрик IoU и Dice на тензорах PyTorch.
+- `utils.py`: Содержит вспомогательные функции (построение графиков, денормализация, визуализация предсказаний).
+- `requirements.txt`: Список необходимых Python библиотек (для PyTorch).
 - `README.md`: Этот файл.
 - `.gitignore`: Определяет файлы и папки, игнорируемые Git.
-- `checkpoints_keras/`: Папка (создается `train.py`) для сохранения лучшей модели (`.h5` файлы).
-- `logs_keras/`: Папка (создается `train.py`) для логов TensorBoard.
-- `training_history_keras.png`: Графики лосса/метрик обучения (создается `train.py`).
-- `prediction_example_*.png`: Примеры визуализации предсказаний (создается `evaluate.py`).
+- `checkpoints_pytorch/`: Папка (создается `train.py`) для сохранения лучшей модели (`best_model.pth`).
+- `downloaded_data/`: Папка (создается `train.py`) для скачанного архива датасета.
+- `extracted_data/`: Папка (создается `train.py`) для распакованного датасета.
+- `training_history_pytorch.png`: Графики лосса/метрик обучения (создается `train.py`).
+- `prediction_examples_pytorch.png`: Примеры визуализации предсказаний (создается `evaluate.py`).
 
 ## Установка
 
 1.  **Клонируйте репозиторий:**
     ```bash
-    git clone [https://github.com/aziz122596/uzcosmos_3.git](https://github.com/aziz122596/uzcosmos_3.git) 
-    cd uzcosmos_3
+    git clone [https://github.com/ВАШ_ЮЗЕРНЕЙМ/road-segmentation-pytorch.git](https://github.com/ВАШ_ЮЗЕРНЕЙМ/road-segmentation-pytorch.git) # Используйте ваше имя репо
+    cd road-segmentation-pytorch
     ```
 
-2.  **Скачайте датасет:**
-    - **Пользователь должен самостоятельно найти и скачать** один из датасетов: Massachusetts Roads Dataset или DeepGlobe Road Extraction Dataset.
-    - **Ссылки для поиска:**
-        - Massachusetts Roads: [https://www.cs.toronto.edu/~vmnih/data/](https://www.cs.toronto.edu/~vmnih/data/)
-        - DeepGlobe Roads: [http://deepglobe.org/challenge.html](http://deepglobe.org/challenge.html) или [https://competitions.codalab.org/competitions/18467](https://competitions.codalab.org/competitions/18467) (может требовать регистрации).
-    - Распакуйте архив.
-    - **Убедитесь**, что у вас есть папка, содержащая подпапки `input` (с `.png` изображениями) и `output` (с `.png` масками). Запомните **полный путь** к этой основной папке (той, что содержит `input` и `output`).
+2.  **Подготовка датасета:**
+    * **Автоматическая загрузка (Massachusetts Roads):** Скрипт `train.py` попытается автоматически скачать и распаковать датасет Massachusetts Roads при первом запуске (требуется установленный `wget`).
+    * **Ручная загрузка / Другой датасет:**
+        * Скачайте датасет (например, Massachusetts Roads или DeepGlobe Roads).
+        * Распакуйте архив.
+        * **ВАЖНО:** Убедитесь, что структура данных соответствует ожиданиям кода (например, папка содержит подпапки `input` и `output` с файлами `.png`). Запомните **полный путь** к этой основной папке.
 
 3.  **Настройте пути в скриптах:**
-    - Откройте файлы `train.py` и `evaluate.py`.
-    - Найдите переменную `DATA_ROOT_DIR` и **замените** `/path/to/your/training_data_folder/` на **реальный путь** к вашей папке, содержащей подпапки `input` и `output`.
-    - Убедитесь, что `IMAGE_DIR_NAME = 'input'` и `MASK_DIR_NAME = 'output'`.
-    - В `evaluate.py` найдите `MODEL_PATH` и подготовьтесь указать путь к файлу `.h5` лучшей модели после обучения.
+    * Откройте файлы `train.py` и `evaluate.py`.
+    * **Если вы скачали данные вручную или используете НЕ Massachusetts Roads:**
+        * Найдите и **закомментируйте или удалите** блок кода "Автоматическая Загрузка и Распаковка" в `train.py`.
+        * Найдите переменную `DATA_ROOT_DIR` и **замените** значение по умолчанию на **реальный путь** к вашей папке с данными (той, что содержит `input` и `output`).
+    * **Если вы используете автоматическую загрузку:** Убедитесь, что переменные `IMAGE_DIR_NAME` и `MASK_DIR_NAME` (например, `os.path.join("tiff", "images")`) соответствуют структуре папок *внутри распакованного архива*. Для версии Kaggle это могут быть просто `'input'` и `'output'`.
+    * В `evaluate.py` найдите `MODEL_PATH` и подготовьтесь указать путь к файлу `.pth` лучшей модели после обучения.
 
-4.  **Создайте и активируйте виртуальное окружение (рекомендуется):**
+4.  **Создайте и активируйте виртуальное окружение:**
     ```bash
-    python3 -m venv venv 
-    # Linux/macOS:
-    source venv/bin/activate
-    # Windows:
-    # venv\Scripts\activate
+    python3 -m venv venv
+    source venv/bin/activate # (или venv\Scripts\activate для Windows)
     ```
 
 5.  **Установите зависимости:**
     ```bash
     pip install -r requirements.txt
     ```
-    *Важное примечание о версиях: В `requirements.txt` указаны **конкретные версии** TensorFlow и Keras (например, 2.11), так как библиотека `segmentation-models` несовместима с Keras 3. Убедитесь, что установка прошла успешно и используются правильные версии. Установка `tensorflow` может потребовать специфических шагов для поддержки GPU (CUDA, cuDNN).*
+    *Примечание: Установка `torch` и `torchvision` может потребовать специфических команд в зависимости от вашей ОС и версии CUDA. См. [официальный сайт PyTorch](https://pytorch.org/).*
 
 ## Использование
 
 1.  **Обучение модели:**
-    Убедитесь, что путь `DATA_ROOT_DIR` в `train.py` настроен правильно. Запустите обучение:
+    Убедитесь, что пути к данным (`DATA_ROOT_DIR`, `IMAGE_DIR_NAME`, `MASK_DIR_NAME`) в `train.py` настроены правильно (либо для автозагрузки, либо для ваших скачанных данных). Запустите обучение:
     ```bash
     python train.py
     ```
-    - Лучшая модель будет сохранена в папку `checkpoints_keras/` (имя файла будет включать эпоху и метрику).
-    - Графики обучения будут сохранены в `training_history_keras.png`.
-    - Логи для TensorBoard будут в папке `logs_keras/`.
+    - Лучшая модель будет сохранена в `checkpoints_pytorch/best_model.pth`.
+    - Графики обучения будут сохранены в `training_history_pytorch.png`.
 
 2.  **Оценка модели:**
-    - **Найдите имя лучшей модели** (`.h5` файл) в папке `checkpoints_keras/`.
-    - **Укажите этот полный путь** в переменной `MODEL_PATH` в файле `evaluate.py`.
     - Убедитесь, что `DATA_ROOT_DIR` в `evaluate.py` указан верно.
+    - **Укажите правильный путь** к сохраненной модели в переменной `MODEL_PATH` в `evaluate.py` (по умолчанию `./checkpoints_pytorch/best_model.pth`).
     - Запустите оценку:
     ```bash
     python evaluate.py
     ```
-    - Метрики (Loss, IoU, Dice) будут выведены в консоль.
-    - Примеры предсказаний будут сохранены в файлы `prediction_example_*.png`.
+    - Метрики IoU и Dice будут выведены в консоль.
+    - Примеры предсказаний будут сохранены в `prediction_examples_pytorch.png`.
 
 ## Подход
 
-- **Фреймворк:** Keras (версия 2.x) / TensorFlow (версия 2.x).
-- **Модель:** U-Net с предобученным энкодером (EfficientNetB0/ResNet) из библиотеки `segmentation-models`.
-- **Датасет:** Massachusetts Roads / DeepGlobe Roads (требуется ручная загрузка и настройка путей).
-- **Загрузка данных:** Кастомный генератор `SegmentationDataGenerator` (Keras Sequence) из `data_loader.py`.
-- **Предобработка:** Нормализация с помощью `segmentation_models.get_preprocessing`.
-- **Аугментация:** Геометрические и яркостные аугментации (`albumentations`) из `data_loader.py`.
-- **Функция потерь:** Комбинированная BCE + Jaccard/Dice Loss из `metrics_and_losses.py`.
-- **Метрики:** IoU (Jaccard) и F1 (Dice) из `metrics_and_losses.py`.
-- **Обучение:** `model.fit` с колбэками Keras (ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, TensorBoard) в `train.py`.
+- **Фреймворк:** PyTorch.
+- **Модель:** U-Net с предобученным энкодером (ResNet34) из библиотеки `segmentation-models-pytorch`.
+- **Датасет:** Massachusetts Roads / DeepGlobe Roads (попытка автозагрузки для Mass. Roads, требуется ручная настройка путей). Данные адаптированы под структуру папок `input`/`output` с файлами `.png`.
+- **Загрузка данных:** Кастомный `RoadDataset` (PyTorch Dataset) из `dataset.py`.
+- **Предобработка:** Нормализация (стандартная или ImageNet), преобразование в тензоры PyTorch.
+- **Аугментация:** Геометрические и яркостные аугментации (`albumentations`).
+- **Функция потерь:** Dice Loss из `segmentation-models-pytorch`.
+- **Метрики:** Intersection over Union (IoU) и Dice Coefficient (реализованы в `metrics.py`).
+- **Обучение:** Кастомный цикл обучения/валидации на PyTorch с оптимизатором AdamW и планировщиком ReduceLROnPlateau (`train.py`).
 - **Оценка:** Выполняется в `evaluate.py` на тестовом (валидационном) наборе с визуализацией.
 
 ## Результаты (Пример)
 
-*Заполните этот раздел после получения реальных результатов*
-- **Test Loss:** ...
-- **Test iou_score:** ...
-- **Test dice_score:** ...
+*Замените на ваши реальные результаты после запуска `evaluate.py`*
 
-*(Сюда можно добавить изображение `prediction_example_0.png`)*
+- **Test IoU:** ...
+- **Test Dice:** ...
+
+*(Сюда можно добавить изображение `prediction_examples_pytorch.png`)*
 
 ## Возможные улучшения
 
-- Подбор гиперпараметров (бэкбон, LR, батч, лосс, аугментации).
-- Использование TTA (Test Time Augmentation).
-- Поиск оптимального порога бинаризации для масок.
+- Подбор гиперпараметров (энкодер, LR, батч, лосс, аугментации).
+- Использование других архитектур (`smp.DeepLabV3+` и др.).
 - Пост-обработка масок (морфологические операции).
-- Обучение на плитках (Tiling) для изображений высокого разрешения.
-- Использование конфигурационных файлов для параметров.
+- Обучение на плитках (Tiling).
+- Использование конфигурационных файлов.
