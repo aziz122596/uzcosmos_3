@@ -20,7 +20,7 @@ IMAGE_DIR_NAME = 'input'
 MASK_DIR_NAME = 'output'
 
 # 2. Параметры модели
-BACKBONE = 'efficientnetb0' 
+BACKBONE = 'resnet34' 
 ENCODER_WEIGHTS = 'imagenet'
 ENCODER_FREEZE = False
 N_CLASSES = 1

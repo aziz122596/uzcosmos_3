@@ -1,8 +1,7 @@
 tensorflow==2.11.* 
 keras==2.11.* 
 
-segmentation-models>=1.0.0 
-efficientnet>=1.0.0     
+segmentation-models>=1.0.0     
 image-classifiers>=1.0.0 
 
 albumentations>=1.0.0

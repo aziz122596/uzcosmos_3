@@ -23,7 +23,7 @@ MASK_DIR_NAME = 'output'
 MODEL_PATH = './checkpoints_keras/best_model_epXX_val_iouX.XXXX.h5' # <--- ИЗМЕНИТЕ ЭТОТ ПУТЬ !!!
 
 # 2. Параметры модели (для препроцессинга и загрузки custom objects)
-BACKBONE = 'efficientnetb0'
+BACKBONE = 'resnet34'
 LOSS_FUNCTION_NAME = 'bce_jaccard' 
 METRIC_NAMES = ['iou_score', 'dice_score'] 
 
