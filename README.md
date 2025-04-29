@@ -21,8 +21,8 @@
 
 1.  **Клонируйте репозиторий:**
     ```bash
-    git clone <URL_вашего_репозитория>
-    cd <папка_репозитория>
+    git clone https://github.com/aziz122596/uzcosmos_3
+    cd uzcosmos_3
     ```
 
 2.  **Создайте и активируйте виртуальное окружение:**
@@ -70,7 +70,6 @@
     - Примеры предсказаний будут сохранены в `prediction_examples_pytorch.png`.
 
 ## Подход
-(Аналогично предыдущей PyTorch версии, но уточнить про метод загрузки)
 - **Фреймворк:** PyTorch.
 - **Модель:** U-Net с предобученным энкодером (ResNet34) из библиотеки `segmentation-models-pytorch`.
 - **Датасет:** Massachusetts Roads (загружается скриптом `download_massroads.py` из источника UofT, сохраняется как PNG в папках input/output).
