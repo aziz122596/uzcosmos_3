@@ -3,7 +3,7 @@ keras==2.11.*
 
 segmentation-models>=1.0.0 
 efficientnet>=1.0.0     
-classification-models>=1.0.0 
+image-classifiers>=1.0.0 
 
 albumentations>=1.0.0
 scikit-learn>=1.0.0
