@@ -1,0 +1,31 @@
+# Виртуальное окружение
+venv/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Редакторы и ОС
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Папки с результатами, логами и моделями Keras/TF
+checkpoints_keras/
+logs_keras/
+*.h5
+
+# Кэш Hugging Face / Datasets 
+.cache/
+*.arrow
+
+# Большие файлы данных
+# data/
+# downloaded_data/
+# extracted_data/
+# *.png # Изображения/маски не храним в git
+

@@ -1,0 +1,15 @@
+tensorflow==2.11.* 
+keras==2.11.* 
+
+segmentation-models>=1.0.0 
+efficientnet>=1.0.0     
+classification-models>=1.0.0 
+
+albumentations>=1.0.0
+scikit-learn>=1.0.0
+scikit-image>=0.18.0
+matplotlib>=3.3.0
+numpy>=1.19.0,<1.24 
+Pillow>=8.0.0
+tqdm
+PyYAML>=5.1
