@@ -117,7 +117,7 @@ model.to(DEVICE)
 
 loss_fn = smp.losses.DiceLoss(mode='binary')
 optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
-scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, verbose=True) # mode='max' для метрик
+scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3) # mode='max' для метрик
 metrics_dict = {'iou': iou_score, 'dice': dice_coeff}
 print("Модель, лосс и оптимизатор настроены.")
 

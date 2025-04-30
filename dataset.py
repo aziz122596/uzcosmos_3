@@ -19,7 +19,7 @@ def get_training_augmentation_pipeline(height, width):
         A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.1, rotate_limit=15, p=0.7, border_mode=cv2.BORDER_CONSTANT),
         A.RandomBrightnessContrast(p=0.5),
         A.RandomGamma(p=0.25),
-        A.IAAEmboss(p=0.25),
+        A.Emboss(p=0.25),
         A.Blur(p=0.1, blur_limit=3),
         A.OneOf([
             A.ElasticTransform(p=0.5, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
